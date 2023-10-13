@@ -1,0 +1,23 @@
+{
+  "name": "project-manager-system-server",
+  "version": "1.0.0",
+  "description": "Server for Project Manager System",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "keywords": [
+    "node.js",
+    "express",
+    "jwt",
+    "sequelize",
+    "mysql2",
+    "nodemailer"
+  ],
+  "author": "Guillaume BAILLY",
+  "license": "ISC",
+  "dependencies": {
+   
+  }
+}
