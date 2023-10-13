@@ -6,6 +6,7 @@ const db = require("./models");
 const Role = db.role;
 
 const auth = require("./routes/auth.routes");
+const user = require("./routes/user.routes");
 
 const app = express();
 
@@ -47,22 +48,12 @@ const setCommonHeaders = (req, res, next) => {
 
 //Routes
 app.use("/auth", auth, setCommonHeaders);
+app.use("/api/user", user, setCommonHeaders);
 
 const port = process.env.PORT || 4000;
 
-const server = app.listen(port, () => {
+app.listen(port, () => {
   console.log("Connected to port " + port);
 });
 
-// Express error handling
-app.use((req, res, next) => {
-  setImmediate(() => {
-    next(new Error("Something went wrong"));
-  });
-});
 
-app.use(function (err, req, res, next) {
-  console.error(err.message);
-  if (!err.statusCode) err.statusCode = 500;
-  res.status(err.statusCode).send(err.message);
-});

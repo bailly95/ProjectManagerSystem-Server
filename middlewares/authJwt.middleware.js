@@ -6,8 +6,9 @@ const Project = db.project;
 // verify for session
 verifyToken = async (req, res, next) => {
   try {
+    console.log(req.headers.authorization);
     const token = req.headers.authorization.split(" ")[1];
-    jwt.verify(token, "longer-secret-is-better");
+    jwt.verify(token, process.env.SECRET);
     next();
   } catch (error) {
     res.status(401).json({ message: "No token provided" });
