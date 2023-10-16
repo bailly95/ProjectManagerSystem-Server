@@ -7,6 +7,9 @@ const Role = db.role;
 
 const auth = require("./routes/auth.routes");
 const user = require("./routes/user.routes");
+const task = require("./routes/task.routes");
+const project = require("./routes/project.routes");
+const comment = require("./routes/comment.routes");
 
 const app = express();
 
@@ -47,8 +50,12 @@ const setCommonHeaders = (req, res, next) => {
 };
 
 //Routes
+
 app.use("/auth", auth, setCommonHeaders);
 app.use("/api/user", user, setCommonHeaders);
+app.use("/api/task", task, setCommonHeaders);
+app.use("/api/project", project, setCommonHeaders);
+app.use("/api/comment", comment, setCommonHeaders);
 
 const port = process.env.PORT || 4000;
 
