@@ -3,11 +3,10 @@ const router = express.Router();
 const controller = require("../controllers/user.controller");
 const { authJwt } = require("../middlewares");
 
-router.get("/:id", authJwt.verifyToken, controller.getUserById);
+router.get("id/:id", authJwt.verifyToken, controller.getUserById);
 
 router.post(
   "/assign/:creatorId/:userId/project/:projectId",
-  [authJwt.isProjectOwner, authJwt.verifyToken],
   controller.addProject
 );
 
@@ -19,7 +18,7 @@ router.post("/forgotpassword", controller.forgotPassword);
 
 router.post("/updatepassword", controller.updatePassword);
 
-// router.get("/:userId/project", authJwt.verifyToken, controller.getProjectByUserId);
-router.get("/:userId/project", controller.getProjectByUserId);
+router.get("/id/:userId/project", authJwt.verifyToken, controller.getProjectByUserId);
 
+router.get("/all", authJwt.verifyToken, controller.getAllUsers);
 module.exports = router;

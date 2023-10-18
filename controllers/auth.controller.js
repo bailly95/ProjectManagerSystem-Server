@@ -1,17 +1,19 @@
 const db = require("../models");
 const User = db.user;
 const Role = db.role;
+const Department = db.department;
 const { Op } = require("sequelize");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 exports.signup = async (req, res) => {
-  const { firstname, lastname, email, password, roles } = req.body;
+  const { firstname, lastname, email, password, roles, departmentId } = req.body;
   try {
     const user = await User.create({
       firstname,
       lastname,
       email,
+      departmentId,
       password: bcrypt.hashSync(password, 8),
     });
 
@@ -26,10 +28,9 @@ exports.signup = async (req, res) => {
       });
       userRoles = foundRoles.map(role => role.id);
     }
-
     const result = await user.setRoles(userRoles);
     if (result) {
-      res.status(201).send({ message: "User registered successfully!" });
+      res.status(201).json({ message: "User registered successfully!" });
     }
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -41,11 +42,11 @@ exports.signin = async (req, res) => {
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(404).send({ message: "User Not found." });
+      return res.status(404).json({ message: "User Not found." });
     }
     const passwordIsValid = bcrypt.compareSync(password, user.password);
     if (!passwordIsValid) {
-      return res.status(401).send({ message: "Invalid Password!" });
+      return res.status(401).json({ message: "Invalid Password!" });
     }
     const token = jwt.sign({ email: user.email, id: user.id }, process.env.SECRET, {
       algorithm: "HS256",

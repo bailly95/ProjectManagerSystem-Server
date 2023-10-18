@@ -6,7 +6,6 @@ const Project = db.project;
 // verify for session
 verifyToken = async (req, res, next) => {
   try {
-    console.log(req.headers.authorization);
     const token = req.headers.authorization.split(" ")[1];
     jwt.verify(token, process.env.SECRET);
     next();
@@ -26,11 +25,11 @@ isAdmin = async (req, res, next) => {
       }
     }
 
-    return res.status(403).send({
+    return res.status(403).json({
       message: "Require Admin Role!",
     });
   } catch (error) {
-    return res.status(500).send({
+    return res.status(500).json({
       message: "Unable to validate User role!",
     });
   }

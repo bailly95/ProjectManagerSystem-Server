@@ -25,9 +25,9 @@ assign = async (req, res, message) => {
       html: templateRendered,
     };
     
-    // Send the email
+    // send the email
     await emailTransporter.sendMail(emailData);
-    res.send({ message: "User was assigned successfully!" });
+    res.json({ message: "User was assigned successfully!" });
   } catch (e) {
     console.error(e);
   }

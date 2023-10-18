@@ -1,14 +1,15 @@
 const db = require("../models");
 const User = db.user;
 const Project = db.project;
+const Department = db.department;
 
 exports.getUserById = async (req, res) => {
   const id = req.params.id;
   try {
-    const user = await User.findByPk(id,{
-  attributes: ["id", "email","firstname","lastname"],
-});
-    
+    const user = await User.findByPk(id, {
+      attributes: ["id", "email", "firstname", "lastname"],
+    });
+
     res.status(200).json({
       user: user,
       message: "Data successfully retrieved.",
@@ -29,22 +30,22 @@ exports.addProject = async (req, res) => {
     ]);
 
     if (!user) {
-      return res.status(404).send({ message: "User not found." });
+      return res.status(404).json({ message: "User not found." });
     }
 
     if (!project) {
-      return res.status(404).send({ message: "Project not found." });
+      return res.status(404).json({ message: "Project not found." });
     }
 
     await user.addProject(project);
 
-    return res.status(201).send({
+    return res.status(201).json({
       message: `Added Project id=${project.id} to User id=${user.id}`,
     });
   } catch (err) {
     return res
       .status(500)
-      .send({ message: "Error while adding Project to User.", error: err });
+      .json({ message: "Error while adding Project to User.", error: err });
   }
 };
 
@@ -55,22 +56,22 @@ exports.updateUser = async (req, res) => {
     const user = await User.findByPk(userId);
 
     if (!user) {
-      return res.status(404).send({ message: "User not found." });
+      return res.status(404).json({ message: "User not found." });
     }
     const passwordIsValid = bcrypt.compareSync(password, user.password);
     if (!passwordIsValid) {
-      return res.status(401).send({
+      return res.status(401).json({
         accessToken: null,
         message: "Invalid Password!",
       });
     }
     user.password = bcrypt.hashSync(newPassword, 8);
     await user.save();
-    res.status(200).send({ message: "Password updated successfully." });
+    res.status(200).json({ message: "Password updated successfully." });
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Error while updating password.", error: err });
+      .json({ message: "Error while updating password.", error: err });
   }
 };
 
@@ -81,19 +82,19 @@ exports.deleteUser = async (req, res) => {
     const user = await User.findByPk(userId);
 
     if (!user) {
-      return res.status(404).send({ message: "User not found." });
+      return res.status(404).json({ message: "User not found." });
     }
     const passwordIsValid = bcrypt.compareSync(password, user.password);
     if (!passwordIsValid) {
-      return res.status(401).send({
+      return res.status(401).json({
         accessToken: null,
         message: "Invalid Password!",
       });
     }
     await user.destroy();
-    res.status(200).send({ message: "User deleted successfully." });
+    res.status(200).json({ message: "User deleted successfully." });
   } catch (err) {
-    res.status(500).send({ message: "Error while deleting User.", error: err });
+    res.status(500).json({ message: "Error while deleting User.", error: err });
   }
 };
 
@@ -106,7 +107,7 @@ exports.forgotPassword = async (req, res) => {
       },
     });
     if (!user) {
-      return res.status(404).send({ message: "User not found." });
+      return res.status(404).json({ message: "User not found." });
     }
 
     const token = jwt.sign({ id: user.id }, process.env.RESET_PASSWORD_KEY, {
@@ -133,7 +134,7 @@ exports.updatePassword = async (req, res) => {
   if (token) {
     jwt.verify(token, process.env.RESET_PASSWORD_KEY, (err, decoded) => {
       if (err)
-        return res.status(400).send({ message: "Incorect token or expired!" });
+        return res.status(400).json({ message: "Incorect token or expired!" });
     });
   }
   try {
@@ -143,18 +144,17 @@ exports.updatePassword = async (req, res) => {
       },
     });
     if (!user) {
-      return res.status(404).send({ message: "User not found." });
+      return res.status(404).json({ message: "User not found." });
     }
     user.password = bcrypt.hashSync(password, 8);
     await user.save();
-    return res.status(200).send({ message: "Password updated successfully." });
+    return res.status(200).json({ message: "Password updated successfully." });
   } catch (err) {
     return res.status(408).json({ error: err });
   }
 };
 
 exports.getProjectByUserId = async (req, res) => {
-  console.log(req.params.userId+"coucou");
   try {
     const userId = req.params.userId;
     const user = await User.findOne({
@@ -164,6 +164,19 @@ exports.getProjectByUserId = async (req, res) => {
       include: [Project],
     });
     res.status(200).json(user.projects);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" + error });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  console.log("get all users");
+  try {
+    const users = await User.findAll({
+      attributes: ["id", "email", "firstname", "lastname"],
+      include: [Department],
+    });
+    res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" + error });
   }

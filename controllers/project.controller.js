@@ -24,15 +24,15 @@ exports.createProject = async (req, res) => {
     });
     const user = await User.findByPk(userId);
     if (!user) {
-      res.status(404).send({ message: "User Not found." });
+      res.status(404).json({ message: "User Not found." });
     } else {
       await user.addProject(project);
-      res.status(201).send({ message: "Project created successfully." });
+      res.status(201).json({ message: "Project created successfully.", project });
     }
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Error while adding Project to User: ", err });
+      .json({ message: "Error while adding Project to User: ", err });
   }
 };
 
@@ -66,15 +66,15 @@ exports.getProject = async (req, res) => {
       const projectId = req.params.projectId;
       const project = await Project.findByPk(projectId);
       if (!project) {
-        res.status(404).send({ message: "Project not found." });
+        res.status(404).json({ message: "Project not found." });
       } else {
         await project.destroy();
-        res.status(200).send({ message: "Project deleted successfully." });
+        res.status(200).json({ message: "Project deleted successfully." });
       }
     } catch (err) {
       res
         .status(500)
-        .send({ message: "Error while deleting Project: ", err });
+        .json({ message: "Error while deleting Project: ", err });
     }
   }
 
@@ -85,7 +85,7 @@ exports.getProject = async (req, res) => {
       const project = await Project.findByPk(projectId);
       const creator = await User.findByPk(project.createdBy);
       if (!project) {
-        res.status(404).send({ message: "Project not found." });
+        res.status(404).json({ message: "Project not found." });
       } 
       const user = await User.findOne({
         where: {
@@ -93,7 +93,7 @@ exports.getProject = async (req, res) => {
         },
       })
       if (!user) {
-        res.status(404).send({ message: "User not found." });
+        res.status(404).json({ message: "User not found." });
       }
       const notif =await Notification.findOne({
         where: {
@@ -102,11 +102,11 @@ exports.getProject = async (req, res) => {
         }
       })
       if(notif){
-        res.status(404).send({ message: "demande deja envoyé." });
+        res.status(404).json({ message: "demande deja envoyé." });
       }
       const isOnProject = user.has(project);
       if(isOnProject){
-        res.status(404).send({ message: "User is already on this project." });
+        res.status(404).json({ message: "User is already on this project." });
       }
       await Notification.create({
         projectId: project.id,
@@ -119,12 +119,12 @@ exports.getProject = async (req, res) => {
         firstname: user.firstname,
         lastname: user.lastname,
       };
-      // res.status(200).send({ message: "Vous avez été assigné au projet." });
+      // res.status(200).json({ message: "Vous avez été assigné au projet." });
       await Mail.assign(req,res,message);
     } catch (err) {
       res
         .status(500)
-        .send({ message: "Error while assigning Project to User: ", err });
+        .json({ message: "Error while assigning Project to User: ", err });
     }
   }
 
@@ -133,13 +133,31 @@ exports.getProject = async (req, res) => {
       const projectId = req.params.projectId;
       const project = await Project.findByPk(projectId);
       if (!project) {
-        res.status(404).send({ message: "Project not found." });
+        res.status(404).json({ message: "Project not found." });
       } 
       const users = await project.users.findAll();
       res.status(200).json(users);
     } catch (err) {
       res
         .status(500)
-        .send({ message: "Error while getting Users of Project: ", err });
+        .json({ message: "Error while getting Users of Project: ", err });
+    }
+  }
+
+  exports.getUsersByProject = async (req, res) => {
+    try {
+      const projectId = req.params.projectId;
+      const project = await Project.findByPk(projectId);
+      if (!project) {
+        res.status(404).json({ message: "Project not found." });
+      } 
+      
+      const users = await project.getUsers();
+      
+      res.status(200).json(users);
+    } catch (err) {
+      res
+        .status(500)
+        .json({ message: "Error while getting Users of Project: ", err });
     }
   }
