@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(
   cors({
-    origin: ["http://localhost:4200"],
+    origin: ["https://mystifying-archimedes.51-68-229-144.plesk.page/"],
   })
 );
 
@@ -71,7 +71,7 @@ app.use(
 //     id: 1,
 //     firstname: "admin",
 //     lastname: "admin",
-//     email: "bailly.g@hotmail.fr",
+//     email: "admin@admin.fr",
 //     password: bcrypt.hashSync("admin06", 8),
 //     departmentId: 1,
 //   });
