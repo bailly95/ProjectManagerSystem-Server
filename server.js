@@ -21,11 +21,15 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(
-  cors({
-    origin: ["https://mystifying-archimedes.51-68-229-144.plesk.page/"],
-  })
-);
+// Autorise toutes les origines (remplacez cela par votre domaine spécifique en production)
+const corsOptions = {
+  origin: 'https://mystifying-archimedes.51-68-229-144.plesk.page',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 
 // force sync destroy everything
 // db.sequelize.sync({force: true}).then(() => {
