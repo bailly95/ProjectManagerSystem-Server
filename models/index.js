@@ -23,67 +23,6 @@ db.project = require("../models/project.model.js")(sequelize);
 db.task = require("../models/task.model.js")(sequelize);
 db.notification = require("../models/notification.model.js")(sequelize);
 
-//Many to Many
-//role => user
-// db.role.belongsToMany(db.user, {
-//   through: "user_roles",
-// });
-// db.user.belongsToMany(db.role, {
-//   through: "user_roles",
-// });
-// //service => user
-// db.department.belongsToMany(db.user, {
-//   through: "user_departments",
-// });
-// db.user.belongsToMany(db.department, {
-//   through: "user_departments",
-// });
-//user => project
-// db.user.belongsToMany(db.project, {
-//   through: "user_projects",
-// });
-// db.project.belongsToMany(db.user, {
-//   through: "user_projects",
-// });
-// //user => task
-// db.user.belongsToMany(db.task, {
-//   through: "user_tasks",
-// });
-// db.task.belongsToMany(db.user, {
-//   through: "user_tasks",
-// });
-
-//One to Many
-//user => department
-// db.user.belongsTo(db.department, {
-//   foreignKey: "departmentId",
-// });
-// //user => project
-// db.project.belongsTo(db.user, {
-//   foreignKey: "createdBy",
-// });
-// //project => task
-// db.task.belongsTo(db.project, {
-//   foreignKey: "projectId",
-// });
-// //task => comment
-// db.task.hasMany(db.comment, { foreignKey: "taskId" });
-// db.comment.belongsTo(db.task, {
-//   foreignKey: "taskId",
-// });
-// //user => comment
-// db.comment.belongsTo(db.user, {
-//   foreignKey: "userId",
-// });
-// //user => notification
-// db.notification.belongsTo(db.user, {
-//   foreignKey: "userId",
-// })
-// //project => notification
-// db.notification.belongsTo(db.project, {
-//   foreignKey: "projectId",
-// })
-
 // Many-to-many
 db.user.belongsToMany(db.role, {
   through: 'user_roles',
@@ -140,6 +79,9 @@ db.comment.belongsTo(db.user, { foreignKey: "userId" });
 
 db.user.hasMany(db.notification, { foreignKey: "userId" });
 db.notification.belongsTo(db.user, { foreignKey: "userId" });
+
+db.project.hasMany(db.notification, { foreignKey: "projectId" });
+db.notification.belongsTo(db.project, { foreignKey: "projectId" });
 
 db.project.hasMany(db.notification, { foreignKey: "projectId" });
 db.notification.belongsTo(db.project, { foreignKey: "projectId" });

@@ -16,7 +16,11 @@ verifyToken = async (req, res, next) => {
 
 isAdmin = async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.userId);
+    const userParams = req.params.userId
+    const userBody = req.body.userId
+    const userId = userBody || userParams
+    const user = await User.findByPk(userId);
+    
     const roles = await user.getRoles();
 
     for (let i = 0; i < roles.length; i++) {
@@ -26,37 +30,52 @@ isAdmin = async (req, res, next) => {
     }
 
     return res.status(403).json({
-      message: "Require Admin Role!",
+      message: "Rôle d'administrateur requis!",
     });
   } catch (error) {
     return res.status(500).json({
-      message: "Unable to validate User role!",
+      message: "Impossible de valider le rôle d'utilisateur!",
+    });
+  }
+};
+
+isAdminOrRh = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.body.userId);
+    const roles = await user.getRoles();
+    console.log(roles)
+    for (let i = 0; i < roles.length; i++) {
+      if (roles[i].name === "admin" || roles[i].name === "rh") {
+        return next();
+      }
+    }
+
+    return res.status(403).json({
+      message: "Rôle d'administrateur ou RH requis!",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Impossible de valider le rôle d'utilisateur!",
     });
   }
 };
 
 isProjectOwner = async (req, res, next) => {
-  const creatorIdParams = parseInt(req.params.creatorId);
-  const creatorIdBody = parseInt(req.body.creatorId);
+  const creatorId = req.body.creatorId;
   const projectId = req.params.projectId;
-  const creatorId = creatorIdParams || creatorIdBody;
   try {
     const project = await Project.findByPk(projectId);
-
     if (!project) {
       return res.status(404).json({ message: "Projet non trouvé" });
     }
-
     if (project.createdBy !== creatorId) {
       return res.status(403).json({
-        message: "Vous n'avez pas l'autorisation pour assigner à ce projet",
+        message: "Vous n'avez pas l'autorisation pour assigner des perssonnes à ce projet",
       });
     }
-
     next();
   } catch (error) {
-    console.error("Error checking project owner:", error);
-    return res.status(500).json({ message: "Erreur du serveur" });
+    return res.status(500).json({ message: "Erreur du serveur : ",error:error });
   }
 };
 
@@ -64,5 +83,6 @@ const authJwtMiddleware = {
   verifyToken,
   isAdmin,
   isProjectOwner,
+  isAdminOrRh
 };
 module.exports = authJwtMiddleware;

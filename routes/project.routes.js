@@ -5,7 +5,7 @@ const { authJwt } = require("../middlewares");
 const controller = require("../controllers/project.controller");
 
 router.get(
-  "/all",
+  "/all/:userId",
   [authJwt.verifyToken, authJwt.isAdmin],
   controller.getAllProjects
 );
@@ -27,5 +27,6 @@ router.get(
   authJwt.verifyToken,
   controller.getUsersByProject
 );
+router.put("/update/:projectId", [authJwt.verifyToken, authJwt.isAdmin], controller.updateProject);
 
 module.exports = router;

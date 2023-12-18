@@ -5,9 +5,16 @@ const Department = db.department;
 const { Op } = require("sequelize");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const generator = require("generate-password");
+const Mail = require("../mails/index");
 
 exports.signup = async (req, res) => {
-  const { firstname, lastname, email, password, roles, departmentId } = req.body;
+  const { firstname, lastname, email, roles, departmentId } = req.body;
+  const password = generator.generate({
+    length: 10,
+    numbers: true,
+  });
+  console.log(password);
   try {
     const user = await User.create({
       firstname,
@@ -18,6 +25,9 @@ exports.signup = async (req, res) => {
     });
 
     let userRoles = [1];
+    if (departmentId==5) {
+      userRoles = [3];
+    }
     if (roles) {
       const foundRoles = await Role.findAll({
         where: {
@@ -30,7 +40,13 @@ exports.signup = async (req, res) => {
     }
     const result = await user.setRoles(userRoles);
     if (result) {
-      res.status(201).json({ message: "User registered successfully!" });
+       const message = {
+         email: user.email,
+         firstname: user.firstname,
+         lastname: user.lastname,
+         password: password
+       };
+      await Mail.newUser(req, res, message);
     }
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -60,5 +76,3 @@ exports.signin = async (req, res) => {
     });
   }
 };
-
-

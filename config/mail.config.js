@@ -1,13 +1,8 @@
-const nodemailer = require("nodemailer");
+const Mailjet = require("node-mailjet");
 
-const emailTransporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER, // Email user
-    pass: process.env.EMAIL_PASSWORD, // Email password
-  },
-});
+const mailjet = Mailjet.apiConnect(
+  process.env.MAILJET_API_KEY,
+  process.env.MAILJET_API_SECRET
+);
 
-module.exports = emailTransporter;
+module.exports = mailjet;

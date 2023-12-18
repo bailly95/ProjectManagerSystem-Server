@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const bcrypt = require("bcryptjs");
 
 const db = require("./models");
+const User = db.user;
 const Role = db.role;
 const Department = db.department;
 
@@ -31,33 +33,59 @@ app.use(
 //   initial();
 // });
 
-// function initial() {
+// async function initial() {
 //   Role.create({
 //     id: 1,
-//     name: "user"
+//     name: "user",
 //   });
-
 //   Role.create({
 //     id: 2,
-//     name: "admin"
+//     name: "admin",
+//   });
+//   Role.create({
+//     id: 3,
+//     name: "rh",
 //   });
 //   Department.create({
 //     id: 1,
-//     name: "dirigeants"
+//     name: "Administrateur",
 //   });
 //   Department.create({
 //     id: 2,
-//     name: "developpeurs"
+//     name: "Dirigeant",
 //   });
 //   Department.create({
 //     id: 3,
-//     name: "comptabilités"
+//     name: "Développeur",
 //   });
+//   Department.create({
+//     id: 4,
+//     name: "Comptabilité",
+//   });
+//   Department.create({
+//     id: 5,
+//     name: "Ressources Humaines",
+//   });
+
+//   await User.create({
+//     id: 1,
+//     firstname: "admin",
+//     lastname: "admin",
+//     email: "bailly.g@hotmail.fr",
+//     password: bcrypt.hashSync("admin06", 8),
+//     departmentId: 1,
+//   });
+//   const admin = await User.findOne({
+//     where: {
+//       id: 1, // Replace with the actual user ID
+//     },
+//   });
+//   console.log("admin", admin);
+//   await admin.setRoles([2]); 
 // }
 
 //sync for prod
 db.sequelize.sync();
-
 
 const setCommonHeaders = (req, res, next) => {
   res.set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept");

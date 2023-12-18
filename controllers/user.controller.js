@@ -1,13 +1,27 @@
 const db = require("../models");
 const User = db.user;
 const Project = db.project;
+const Role = db.role;
 const Department = db.department;
+const bcrypt = require("bcryptjs");
+const { Op } = require("sequelize");
 
 exports.getUserById = async (req, res) => {
+  
   const id = req.params.id;
   try {
     const user = await User.findByPk(id, {
       attributes: ["id", "email", "firstname", "lastname"],
+      include: [
+        {
+          model: Role,
+          attributes: ["name"],
+        },
+        {
+          model: Department,
+          attributes: ["name","id"],
+        }
+      ],
     });
 
     res.status(200).json({
@@ -49,21 +63,17 @@ exports.addProject = async (req, res) => {
   }
 };
 
-exports.updateUser = async (req, res) => {
+exports.updatePasswordUser = async (req, res) => {
   const userId = req.params.userId;
-  const { password, newPassword } = req.body;
+  const { oldPassword, newPassword } = req.body;
   try {
     const user = await User.findByPk(userId);
-
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
-    const passwordIsValid = bcrypt.compareSync(password, user.password);
+      const passwordIsValid = bcrypt.compareSync(oldPassword, user.password);
     if (!passwordIsValid) {
-      return res.status(401).json({
-        accessToken: null,
-        message: "Invalid Password!",
-      });
+      return res.status(401).json({ message: "Invalid Password!" });
     }
     user.password = bcrypt.hashSync(newPassword, 8);
     await user.save();
@@ -75,21 +85,33 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-exports.deleteUser = async (req, res) => {
+exports.updateUser = async (req, res) => {
   const userId = req.params.userId;
-  const password = req.body.password;
+  const { firstname, lastname, email,departmentId } = req.body;
   try {
     const user = await User.findByPk(userId);
-
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
-    const passwordIsValid = bcrypt.compareSync(password, user.password);
-    if (!passwordIsValid) {
-      return res.status(401).json({
-        accessToken: null,
-        message: "Invalid Password!",
-      });
+    user.departmentId = departmentId;
+    user.lastname = lastname;
+    user.firstname = firstname;
+    user.email = email;
+    await user.save();
+    res.status(200).json({ message: "Password updated successfully." });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error while updating password.", error: err });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
     }
     await user.destroy();
     res.status(200).json({ message: "User deleted successfully." });
@@ -174,7 +196,17 @@ exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
       attributes: ["id", "email", "firstname", "lastname"],
-      include: [Department],
+      include: [
+        {
+          model: Department,
+          where: {
+            name: {
+              [Op.ne]: "Administrateurs", // Exclure le département "Administrateur"
+            },
+          },
+        },
+      ],
+      order: [[Department, "name", "ASC"]],
     });
     res.status(200).json(users);
   } catch (error) {

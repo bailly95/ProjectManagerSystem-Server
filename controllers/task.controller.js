@@ -21,6 +21,7 @@ exports.createTask = async (req, res) => {
 
 exports.updateTask = async (req, res) => {
   try {
+    console.log(req.body.status)
     const taskId = req.params.id;
     const task = await Task.findByPk(taskId);
     if (!task) {
